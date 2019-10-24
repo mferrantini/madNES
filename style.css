@@ -1,0 +1,28 @@
+body {
+    /* background: black; */
+}
+
+.container {
+    position: fixed;
+    height: 0;
+    width: 95%;
+    padding-bottom: 95%;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    height: 100%;
+    width: 100%;
+
+    image-rendering: pixelated;
+
+    background: white;
+}

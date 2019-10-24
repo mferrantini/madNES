@@ -1,0 +1,32 @@
+{
+  "name": "madnes",
+  "version": "1.0.0",
+  "description": "Just another NES emulator, entirely written in Javascript",
+  "main": "script.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mferrantini/madNES.git"
+  },
+  "keywords": [
+    "NES",
+    "games",
+    "retrogaming",
+    "emulation"
+  ],
+  "author": "Marco Ferrantini <liquidsnake2@hotmail.it>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mferrantini/madNES/issues"
+  },
+  "homepage": "https://github.com/mferrantini/madNES#readme",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "jquery": "^3.4.0"
+  }
+}
