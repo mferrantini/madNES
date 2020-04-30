@@ -27,6 +27,6 @@
   "homepage": "https://github.com/mferrantini/madNES#readme",
   "dependencies": {
     "fs": "0.0.1-security",
-    "jquery": "^3.4.0"
+    "jquery": "^3.5.0"
   }
 }
