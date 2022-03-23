@@ -5,7 +5,7 @@ import {ADDRESSING} from '../utils/Constants.js';
 import Byte from '../utils/Byte.js';
 
 class Instruction {
-    constructor(opCode, bytes, cycles, addressing, allowExtraCycles) {
+    constructor(opCode, bytes, cycles, addressing, allowExtraCycles) {
         this.opCode = opCode;
         this.cycles = cycles;
         this.bytes  = bytes;
@@ -14,7 +14,6 @@ class Instruction {
 
         this.address = null;
         this.extraCycles = 0;
-
     }
 
     run(CPU) {

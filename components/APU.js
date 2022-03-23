@@ -1,9 +1,8 @@
+'use strict';
+
 class APU {
-    constructor(memoryController) {
-        ({
-            writeMemory: this.writeMemory,
-            readMemory: this.readMemory
-        } = memoryController.registerComponent('APU', this));
+    constructor(BUS) {
+        this.BUS = BUS;
     }
 }
 
