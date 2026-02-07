@@ -6,11 +6,11 @@ class Register {
         this.data[0] = value || 0;
     }
 
-    value() {
+    get value() {
         return this.data[0];
     }
 
-    set(value) {
+    set value(value) {
         this.data[0] = value;
     }
 
@@ -30,12 +30,20 @@ class Register {
         return (this.data[0] >> position) & 1;
     }
 
+    setBit(position) {
+        this.data[0] |= (1 << position);
+    }
+
     clearBit(position) {
         this.data[0] &= ~(1 << position);
     }
 
-    setBit(position) {
-        this.data[0] |= (1 << position);
+    isZero() {
+        return this.data[0] === 0;
+    }
+
+    isNegative() {
+        return !!this.getBit(7);
     }
 }
 
@@ -50,11 +58,11 @@ class Register16Bit extends Register {
         super(Uint16Array, data);
     }
 
-    getHigherByte() {
+    get higherByte() {
         return this.data[0] >> 8;
     }
 
-    setHigherByte(value) {
+    set higherByte(value) {
         // Trim value
         value &= 0x00FF;
         // Clean current higher byte
@@ -63,11 +71,11 @@ class Register16Bit extends Register {
         this.data[0] |= (value << 8);
     }
 
-    getLowerByte() {
+    get lowerByte() {
         return this.data[0] & 0x00FF;
     }
 
-    setLowerByte(value) {
+    set lowerByte(value) {
         // Trim value
         value &= 0x00FF;
         // Clean current lower byte
@@ -77,6 +85,10 @@ class Register16Bit extends Register {
     }
 }
 
-export {Register, Register8Bit, Register16Bit};
+export {
+    Register,
+    Register8Bit,
+    Register16Bit,
+};
 
 export default Register;

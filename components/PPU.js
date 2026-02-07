@@ -165,23 +165,23 @@ class PPU {
     readRegister(address) {
         switch (address) {
             case 0x00:
-                return this.REGISTER_PPUCTRL.value();
+                return this.REGISTER_PPUCTRL.value;
             case 0x01:
-                return this.REGISTER_PPUMASK.value();
+                return this.REGISTER_PPUMASK.value;
             case 0x02:
-                let previousStatus = this.REGISTER_PPUSTATUS.value();
+                let previousStatus = this.REGISTER_PPUSTATUS.value;
                 this.REGISTER_PPUSTATUS.clearBit(PPU_STATUS_FLAGS.VBLANK);
                 return previousStatus;
             case 0x03:
-                return this.REGISTER_OAMADDR.value();
+                return this.REGISTER_OAMADDR.value;
             case 0x04:
-                return this.REGISTER_OAMDATA.value();
+                return this.REGISTER_OAMDATA.value;
             case 0x05:
-                return this.REGISTER_PPUSCROLL.value();
+                return this.REGISTER_PPUSCROLL.value;
             case 0x06:
-                return this.REGISTER_PPUADDR.value();
+                return this.REGISTER_PPUADDR.value;
             case 0x07:
-                return this.REGISTER_PPUDATA.value();
+                return this.REGISTER_PPUDATA.value;
             default:
                 throw new Error('Invalid PPU register selected for read');
         }
@@ -190,28 +190,28 @@ class PPU {
     writeRegister(address, byte) {
         switch (address) {
             case 0x00:
-                this.REGISTER_PPUCTRL.set(byte);
+                this.REGISTER_PPUCTRL.value = byte;
                 break;
             case 0x01:
-                this.REGISTER_PPUMASK.set(byte);
+                this.REGISTER_PPUMASK.value = byte;
                 break;
             case 0x02:
-                this.REGISTER_PPUSTATUS.set(byte);
+                this.REGISTER_PPUSTATUS.value = byte;
                 break;
             case 0x03:
-                this.REGISTER_OAMADDR.set(byte);
+                this.REGISTER_OAMADDR.value = byte;
                 break;
             case 0x04:
-                this.REGISTER_OAMDATA.set(byte);
+                this.REGISTER_OAMDATA.value = byte;
                 break;
             case 0x05:
-                this.REGISTER_PPUSCROLL.set(byte);
+                this.REGISTER_PPUSCROLL.value = byte;
                 break;
             case 0x06:
-                this.REGISTER_PPUADDR.set(byte);
+                this.REGISTER_PPUADDR.value = byte;
                 break;
             case 0x07:
-                this.REGISTER_PPUDATA.set(byte);
+                this.REGISTER_PPUDATA.value = byte;
                 break;
             default:
                 throw new Error('Invalid PPU register selected for write');

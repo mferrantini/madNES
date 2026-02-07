@@ -11,10 +11,11 @@ class NES {
 
         this.CPU = new CPU(this);
         this.PPU = new PPU(this);
-        this.APU = new APU(this);
+        // this.APU = new APU(this);
 
         // 2KB Internal RAM
         this.WRAM = new Uint8Array(0x800).fill(0x00);
+
         // 2KB Video RAM
         this.VRAM = new Uint8Array(0x800).fill(0x00);
     }
@@ -27,20 +28,22 @@ class NES {
         this.CPU.powerOn();
     }
 
-    reset() {}
+    // reset() {}
 
     frame() {
-        while(!this.PPU.isFrameReady) this.step();
-        this.PPU.renderFrame();
+        this.step();
+        // while(!this.PPU.isFrameReady) this.step();
+        // this.PPU.renderFrame();
     }
 
     step() {
         // 1 CPU Step
         this.CPU.step();
+
         // 3 PPU Steps
-        this.PPU.step();
-        this.PPU.step();
-        this.PPU.step();
+        // this.PPU.step();
+        // this.PPU.step();
+        // this.PPU.step();
     }
 
     // Memory management methods
@@ -88,13 +91,13 @@ class NES {
         }
     }
 
-    ppuReadMemory(address) {
+    // ppuReadMemory(address) {
 
-    }
+    // }
 
-    ppuWriteMemory(address) {
+    // ppuWriteMemory(address) {
 
-    }
+    // }
 }
 
 export default NES;

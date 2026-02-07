@@ -35,12 +35,12 @@ class ROM {
         // 9: Flags 9 - TV system (rarely used extension)
         this.TV_SYSTEM = CONSTANTS.PAL_SYSTEM;
 
-        
+
         // 10: Flags 10 - TV system, PRG-RAM presence (unofficial, rarely used extension)
         // Not implemented
-        
+
         // 11-15: Unused padding (should be filled with zero, but some rippers put their name across bytes 7-15)
-        
+
         // Initialize an empty array and fill it with header bytes
         this.headerBytes = new Array(CONSTANTS.ROM_HEADER_SIZE_IN_BYTES).fill(0);
         this.headerBytes = this.headerBytes.map((v, idx) => new Byte(this.bytes[idx]));
@@ -218,7 +218,7 @@ class NROM extends Mapper {
         } else if (0x8000 <= address && address <= 0xBFFF) {
             address = address % (CONSTANTS.PRG_BANK_SIZE_IN_KB * CONSTANTS.KB_IN_BYTES);
             selectedBank = this.ROM.getPRGBank(0);
-        
+
         } else if (0xC000 <= address && address <= 0xFFFF) {
             address = address % (CONSTANTS.PRG_BANK_SIZE_IN_KB * CONSTANTS.KB_IN_BYTES);
             selectedBank = this.ROM.getPRGBank(this.ROM.PRG_ROM_BANKS - 1)
