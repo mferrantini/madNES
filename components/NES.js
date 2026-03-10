@@ -10,6 +10,10 @@ import UI  from "../utils/UI.js";
 
 class NES {
     constructor() {
+        // When true, PPU draws the nametable and UI refreshes the debug panel
+        this.debugViewActive = false;
+        this.pauseExecution = true;
+
         this.ROM = null;
 
         // this.APU = new APU(this);
@@ -25,11 +29,6 @@ class NES {
 
         // 32-byte Palette RAM
         this.PALETTE_RAM = new Uint8Array(0x20).fill(0x00);
-
-        this.pauseExecution = true;
-
-        // When true, PPU draws the nametable and UI refreshes the debug panel
-        this.debugViewActive = false;
     }
 
     loadCartridge(romData) {

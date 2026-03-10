@@ -7,7 +7,6 @@ import {
 } from "../utils/BinaryStructures.js";
 
 import {
-    CONSTANTS,
     ADDRESSING,
     INSTRUCTIONS,
     CPU_STATUS_FLAG

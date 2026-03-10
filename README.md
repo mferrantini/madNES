@@ -8,7 +8,7 @@ A Nintendo Entertainment System emulator running entirely in the browser, with n
 
 ## Features
 
-- **CPU** — cycle-accurate 6502 processor emulation, including a large set of illegal opcodes
+- **CPU** — Subcycle-accurate 6502 processor emulation, including a large set of illegal opcodes
 - **PPU** — Picture Processing Unit with background rendering and nametable support
 - **ROM loading** — iNES format, Mapper 0 (NROM)
 - **Debug sidebar** — toggleable panel with live nametable preview, CPU register values, status flags and a disassembler view
