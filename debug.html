@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <title>NES Emulator</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div id="grid">
+
+            <div id="screen">
+            <canvas id="display" width="256" height="240"></canvas>
+            </div>
+
+            <div id="nametable">
+                <canvas id="debug-nametable" width="256" height="240"></canvas>
+            </div>
+
+            <div id="log-live" class="log-panel">
+            <div class="panel-label">LIVE LOG</div>
+            <div class="log-area" id="live-log"></div>
+            </div>
+
+            <div id="log-ref" class="log-panel">
+            <div class="panel-label">REFERENCE LOG</div>
+            <div class="log-area" id="ref-log"></div>
+            </div>
+        </div>
+
+        <div id="statusbar">
+            <span id="fps">-- FPS</span>
+            <span class="sep">|</span>
+            <span id="st-prog">0 / 0</span>
+            <span class="sep">|</span>
+            <span class="ok" id="st-ok">✓ 0</span>
+            <span class="sep">|</span>
+            <span class="err" id="st-err">✗ 0</span>
+            <span class="sep">|</span>
+            <span id="st-msg">Loading nestest.log…</span>
+            <span style="flex:1"></span>
+            <button id="btn-reset">↺ Reset</button>
+        </div>
+
+        <script src="debug-utils.js"></script>
+        <script src="script.js" type="module"></script>
+
+    </body>
+</html>

@@ -42,11 +42,23 @@ const CPU_STATUS_FLAG = {
     'ZERO': 1,
     'INTERRUPT': 2,
     'DECIMAL': 3,
-    'UNUSED_B_1': 4,
-    'UNUSED_B_2': 5,
+    'BREAK': 4,
+    'UNUSED': 5,
     'OVERFLOW': 6,
     'NEGATIVE': 7
 };
+
+const PPU_MASK_FLAGS = {
+    'GRAYSCALE': 0,
+    'SHOW_BACKGROUND': 1,
+    'SHOW_SPRITES': 2,
+    'ENABLE_BACKGROUND': 3,
+    'ENABLE_SPRITES': 4,
+    'EMPHASIZE_RED': 5,
+    'EMPHASIZE_GREEN': 6,
+    'EMPHASIZE_BLUE': 7
+};
+
 
 const PPU_STATUS_FLAGS = {
     'SPRITE_OVERFLOW': 5,
@@ -54,7 +66,27 @@ const PPU_STATUS_FLAGS = {
     'VBLANK': 7
 };
 
+const PPU_CONTROL_FLAGS = {
+    'VRAM_ADDRESS_INCREMENT': 2,
+    'BG_PT_ADDRESS': 4,
+    'NMI': 7
+};
+
 const INSTRUCTIONS = {
+    'BRK': 'BRK',
+
+    // Arithmetic instructions
+    'ADC': 'ADC',
+    'SBC': 'SBC',
+
+    // Transfer instructions
+    'TAX': 'TAX',
+    'TAY': 'TAY',
+    'TXA': 'TXA',
+    'TYA': 'TYA',
+    'TXS': 'TXS',
+    'TSX': 'TSX',
+
     // Branch instructions
     'BCC': 'BCC',
     'BCS': 'BCS',
@@ -72,13 +104,17 @@ const INSTRUCTIONS = {
     'CLV': 'CLV',
 
     // Compare instructions
+    'CMP': 'CMP',
     'CPX': 'CPX',
+    'CPY': 'CPY',
 
     // Decrement instructions
+    'DEC': 'DEC',
     'DEX': 'DEX',
     'DEY': 'DEY',
 
     // Increment instructions
+    'INC': 'INC',
     'INX': 'INX',
     'INY': 'INY',
 
@@ -97,9 +133,24 @@ const INSTRUCTIONS = {
     'STX': 'STX',
     'STY': 'STY',
 
-    'STOP_CURRENT_INSTRUCTION': 'stop',
+    // Shift instructions
+    'LSR': 'LSR',
+    'ASL': 'ASL',
+    'ROR': 'ROR',
+    'ROL': 'ROL',
+
+    // Illegal instructions
+    'LAX': 'LAX',
+    'SAX': 'SAX',
+    'DCP': 'DCP',
+    'ISC': 'ISC',
+    'ISB': 'ISB',
+    'SLO': 'SLO',
+    'RLA': 'RLA',
+    'SRE': 'SRE',
+    'RRA': 'RRA',
 };
 
-export {CONSTANTS, ADDRESSING, INSTRUCTIONS, CPU_STATUS_FLAG, PPU_STATUS_FLAGS}
+export {CONSTANTS, ADDRESSING, INSTRUCTIONS, CPU_STATUS_FLAG, PPU_STATUS_FLAGS, PPU_CONTROL_FLAGS, PPU_MASK_FLAGS}
 
 export default CONSTANTS;

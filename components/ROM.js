@@ -1,7 +1,7 @@
 'use strict';
 
-import Byte from "./Byte.js";
-import CONSTANTS from "./Constants.js";
+import { Byte } from "../utils/BinaryStructures.js";
+import CONSTANTS from "../utils/Constants.js";
 
 class ROM {
     constructor(bytes) {
@@ -17,7 +17,7 @@ class ROM {
         this.PRG_ROM_BANKS = 0;
         this.PRG_ROM_SIZE = 0;
 
-        // 5: Size of CHR ROM in 8 KB units (Value 0 means the board uses CHR RAM)
+        // 5: Size  of CHR ROM in 8 KB units (Value 0 means the board uses CHR RAM)
         this.CHR_ROM_BANKS = 0;
         this.CHR_ROM_SIZE = 0;
 
@@ -49,8 +49,7 @@ class ROM {
         if (this.headerBytes[0].isEqualTo(0x4E) && // 0x4E -> N
             this.headerBytes[1].isEqualTo(0x45) && // 0x45 -> E
             this.headerBytes[2].isEqualTo(0x53) && // 0x53 -> S
-            this.headerBytes[3].isEqualTo(0x1A)) { // 0x1A -> MS-DOS end-of-file
-
+            this.headerBytes[3].isEqualTo(0x1A)) { // 0x1A -> MS-DOS EOF
             this.FORMAT = CONSTANTS.INES_FORMAT;
         } else {
             throw new Error('ROM format not yet supported');
@@ -76,9 +75,11 @@ class ROM {
         ||||+---- 1: Ignore mirroring control or above mirroring bit; instead provide four-screen VRAM
         ++++----- Lower nybble of mapper number
         **/
-        this.MIRRORING_TYPE = this.headerBytes[6].isBitSet(0) ? CONSTANTS.V_MIRRORING : CONSTANTS.H_MIRRORING;
-        this.BATTERY_MEMORY = this.headerBytes[6].isBitSet(1);
-        this.TRAINER        = this.headerBytes[6].isBitSet(2);
+        this.MIRRORING_TYPE = this.headerBytes[6].getBit(0) ?
+            CONSTANTS.V_MIRRORING :
+            CONSTANTS.H_MIRRORING;
+        this.BATTERY_MEMORY = this.headerBytes[6].getBit(1);
+        this.TRAINER        = this.headerBytes[6].getBit(2);
 
         /**
         Flags 7th Byte
@@ -90,10 +91,10 @@ class ROM {
         ||||++--- If equal to 2, flags 8-15 are in NES 2.0 format
         ++++----- Upper nybble of mapper number
         **/
-        this.MAPPER_ID = this.headerBytes[7].upperNibble() + this.headerBytes[6].upperNibble();
+        this.MAPPER_ID = this.headerBytes[7].upperNibble + this.headerBytes[6].upperNibble;
 
         if (this.FORMAT === CONSTANTS.INES_FORMAT &&
-            !this.headerBytes[7].isBitSet(2) && this.headerBytes[7].isBitSet(3)) {
+            !this.headerBytes[7].getBit(2) && this.headerBytes[7].getBit(3)) {
 
                 this.FORMAT = CONSTANTS.NES2_FORMAT;
                 throw new Error('NES2.0 Header is not yet supported!');
@@ -122,7 +123,7 @@ class ROM {
         |||||||+- TV system (0: NTSC; 1: PAL)
         +++++++-- Reserved, set to zero
         **/
-        this.TV_SYSTEM = this.headerBytes[9].isBitSet(0) ? CONSTANTS.PAL_SYSTEM : CONSTANTS.NTSC_SYSTEM;
+        this.TV_SYSTEM = this.headerBytes[9].getBit(0) ? CONSTANTS.PAL_SYSTEM : CONSTANTS.NTSC_SYSTEM;
 
         /**
         Flags 10 Byte
@@ -152,18 +153,19 @@ class ROM {
             offset += prgBankSizeInBytes;
         }
 
-        this.CHR_ROM = new Array(this.CHR_ROM_SIZE);
+        this.CHR_ROM = new Array(this.CHR_ROM_BANKS);
         let chrBankSizeInBytes = CONSTANTS.CHR_BANK_SIZE_IN_KB * CONSTANTS.KB_IN_BYTES;
 
         for (let bank = 0; bank < this.CHR_ROM_BANKS; bank++) {
             this.CHR_ROM[bank] = this.bytes.slice(offset, offset + chrBankSizeInBytes);
+            offset += chrBankSizeInBytes;
         }
 
         let SUPPORTED_MAPPERS = [
             NROM,
-            // MMC1,
-            // MMC2,
-            // MMC3
+            // MMC1, TODO: Implement MMC1
+            // MMC2, TODO: Implement MMC2
+            // MMC3, TODO: Implement MMC3
         ];
 
         if (!SUPPORTED_MAPPERS[this.MAPPER_ID]) {
@@ -188,6 +190,9 @@ class Mapper {
     constructor(ROM) {
         this.ROM = ROM;
     }
+
+    readMemory(address) {}
+    writeMemory(address, byte) {}
 }
 
 class NROM extends Mapper {
@@ -203,12 +208,12 @@ class NROM extends Mapper {
 
     constructor(ROM) {
         super(ROM);
-
         this.NAME = 'Nintendo NROM';
     }
 
     readMemory(address) {
         let selectedBank = null;
+
         if (0x0000 <= address && address <= 0x1FFF) {
             return this.ROM.CHR_ROM[0][address];
 
