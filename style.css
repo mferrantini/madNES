@@ -1,151 +1,492 @@
-/* body {
-    margin: 0;
-    padding: 0;
-    background-color: white;
-}
+/* =============================================================================
+   madNES — Stylesheet
+   =============================================================================
 
-canvas {
-    width: 50%;
-    height: 50%;
+   Table of contents
+   -----------------
+   1. Design tokens (custom properties)
+   2. Reset & base
+   3. Layout shell  (topbar · main · bottombar)
+   4. Topbar         (logo · fps · github link · shared bar utilities)
+   5. Game canvas
+   6. Debug sidebar  (shell · sections · nametable)
+   7. CPU panel      (registers grid · status flags)
+   8. Execution controls
+   9. Disassembly
+  10. Buttons
+  11. Reset confirm dialog
 
-    image-rendering: pixelated;
+   Unit convention
+   ---------------
+   All sizing uses rem (root em, base 16 px), in steps of 0.25 rem.
+   Letter-spacing is the sole exception — fine-grained sub-step values are
+   stored in dedicated custom properties and never rounded.
+   1px hairline borders are also kept in px and must not scale.
 
-    background: black;
-} */
+   ============================================================================= */
 
 
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ─────────────────────────────────────────────────────────────────────────────
+   1. Design tokens
+   ───────────────────────────────────────────────────────────────────────────── */
 
 :root {
+  /* Colours */
+  --bd-dark: #040506;
   --bg:      #0d0f14;
   --surface: #13161e;
   --border:  #1e2330;
   --text:    #c8cfe0;
   --muted:   #4a5270;
-  --green:   #3dd68c;
-  --red:     #f05b5b;
-  --yellow:  #f0c45b;
   --accent:  #5b8af0;
-  --mono:    'JetBrains Mono', 'Courier New', monospace;
+  --green:   #3dd68c;
+  --yellow:  #f0c45b;
+  --red:     #f05b5b;
+
+  /* Layout */
+  --topbar-h:    2.25rem;  /* 36 px */
+  --bottombar-h: 2.25rem;  /* 36 px */
+  --sidebar-w:   19.5rem;  /* 312 px */
+
+  /* Typography */
+  --font-mono: "Google Sans Code", "JetBrains Mono", "Courier New", monospace;
+
+  /* Letter-spacing — exempt from the 0.25 rem step rule */
+  --ls-tight:  -0.03125rem;  /* compact tracking     — logo name             */
+  --ls-slogan:  0.01875rem;  /* very subtle tracking  — logo slogan           */
+  --ls-label:   0.075rem;    /* open tracking         — sidebar section heads */
+  --ls-mono:    0.03125rem;  /* subtle tracking       — monospace data labels */
 }
 
-html, body {
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   2. Reset & base
+   ───────────────────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
   height: 100%;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 12px;
+
+  /* Explicit 100% honours the user's browser font-size preference
+     so the whole layout scales when the user zooms or changes their default */
+  font-size: 100%;
+}
+
+body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 
-  font-family: "Google Sans Code", monospace;
-  font-optical-sizing: auto;
-  font-style: normal;
+  background: var(--bg);
+  color: var(--text);
+
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
 }
 
-/* 2x2 grid, top row fixed height, bottom row fills the rest */
-#grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  height: calc(100% - 32px); /* leave room for statusbar */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   3. Layout shell
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/*
+ * Topbar e bottombar condividono lo stesso stile visivo.
+ * Il divisore è un inset box-shadow (non un border) in modo che non sottragga
+ * spazio al content-box: entrambe le barre hanno i 36 px di area flex intatti
+ * e gli elementi si centrano verticalmente nello stesso identico punto.
+ */
+#topbar,
+#bottombar {
+  height: var(--topbar-h);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+
+  background: var(--surface);
+
+  &:is(#topbar)    { box-shadow: inset 0 -1px 0 var(--border); }
+  &:is(#bottombar) { box-shadow: inset 0  1px 0 var(--border); }
 }
 
-/* Top-left: canvas container */
-#screen, #nametable {
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+#main {
+  flex: 1;
+  min-height: 0;  /* prevent flex blowout */
+  display: flex;
+  overflow: hidden;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   4. Topbar
+   ───────────────────────────────────────────────────────────────────────────── */
+
+#logo {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-shrink: 0;
+
+  & #logo-name {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: var(--ls-tight);
+
+    color: var(--accent);
+  }
+
+  & #logo-slogan {
+    font-size: 0.75rem;
+    font-style: italic;
+    letter-spacing: var(--ls-slogan);
+
+    color: var(--muted);
+  }
+}
+
+#fps {
+  min-width: 4.5rem;
+
+  line-height: 1;
+  font-size: 0.75rem;
+
+  color: var(--muted);
+}
+
+.sep           { color: var(--border); }
+.topbar-spacer { flex: 1; }
+
+#github-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+
+  font-size: 0.75rem;
+  text-decoration: none;
+
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  transition: color 120ms, border-color 120ms;
+
+  &:hover {
+    color: var(--text);
+    border-color: var(--muted);
+  }
+
+  & #github-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+
+    fill: currentColor;
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   5. Game canvas
+   ───────────────────────────────────────────────────────────────────────────── */
+
+#game-area {
+  flex: 1;
+  min-width: 0;  /* allow flex item to shrink below content size */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
-  background: var(--surface);
+  overflow: hidden;
 
-  canvas {
-    background: var(--bg);
-    height: 100%;
+  background: var(--bd-dark);
+
+  & canvas {
+    aspect-ratio: 256 / 240;
+    /*
+     * Fill as much space as possible while always keeping the correct
+     * NES aspect ratio. We take the minimum of:
+     *   a) 100% of the available width
+     *   b) the width that would result from filling the available height
+     * so the canvas is never clipped in either axis.
+     */
+    width: min(
+      100%,
+      calc((100vh - var(--topbar-h) - var(--bottombar-h)) * 256 / 240)
+    );
+    height: auto;
+
+    background: #000;
     image-rendering: pixelated;
   }
 }
 
-/* Top-right: empty for now */
-#info {
-  border-bottom: 1px solid var(--border);
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   6. Debug sidebar — shell & sections
+   ───────────────────────────────────────────────────────────────────────────── */
+
+#debug-sidebar {
+  width: 0;
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  background: var(--surface);
+  /* Animate open/close via width; border-left-width animates in sync */
+  border-left: 0 solid var(--border);
+  transition: width 220ms ease, border-left-width 220ms ease;
+
+  &.open {
+    width: var(--sidebar-w);
+
+    border-left-width: 1px;
+  }
 }
 
-/* Bottom panels */
-.log-panel {
+.sidebar-section {
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-right: 1px solid var(--border);
+
+  border-bottom: 1px solid var(--border);
+
+  /* Last section (disassembly) grows to fill remaining height */
+  &--grow {
+    flex: 1;
+
+    border-bottom: none;
+  }
 }
 
-.log-panel:last-child { border-right: none; }
+.sidebar-label {
+  flex-shrink: 0;
+  padding: 0.25rem 0.75rem;
 
-.panel-label {
-  padding: 6px 12px;
-  font-size: 10px;
-  letter-spacing: 1px;
+  font-size: 0.75rem;
+  letter-spacing: var(--ls-label);
+  white-space: nowrap;
+
   color: var(--muted);
   border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
 }
 
-.log-area {
+.sidebar-canvas-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+
+  background: var(--bg);
+
+  & canvas {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 256 / 240;
+
+    image-rendering: pixelated;
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   7. CPU panel — registers grid & status flags
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Three-column register grid: label · value · label · value · label · value */
+.cpu-regs-grid {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr 1.25rem 1fr 1.25rem 1fr;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  padding: 0.5rem 0.75rem 0.25rem;
+
+  font-size: 0.75rem;
+}
+
+.reg-name {
+  text-align: right;
+  font-weight: 700;
+  letter-spacing: var(--ls-mono);
+
+  color: var(--muted);
+
+  cursor: default;
+  user-select: none;
+}
+
+.reg-value {
+  letter-spacing: var(--ls-mono);
+
+  color: var(--accent);
+
+  /* PC is 4 hex digits wide; let it consume the rest of its row */
+  &--wide { grid-column: span 3; }
+}
+
+.cpu-status-row {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.5rem 0.25rem;
+}
+
+.status-bit {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.75rem;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+
+  cursor: default;
+  user-select: none;
+  transition: color 80ms, border-color 80ms, background 80ms;
+
+  &.set {
+    color: var(--green);
+    border-color: var(--green);
+    background: rgba(61, 214, 140, 0.1);
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   8. Execution controls (play · step · frame)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.step-controls {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+
+  & button { flex: 1; }
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   9. Disassembly
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.disasm-area {
   flex: 1;
   overflow-y: auto;
-  padding: 4px 0;
+  padding: 0.25rem 0;
+
+  font-size: 0.75rem;
+  line-height: 1.6;
+
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
 
-/* Log rows */
-.log-row {
-  display: flex;
-  padding: 2px 12px;
-  gap: 8px;
-  line-height: 1.5;
-  border-left: 2px solid transparent;
-  border: 1px solid var(--surface);
-}
+.disasm-row {
+  padding: 0 0.75rem;
 
-.row-num {
+  white-space: nowrap;
+
   color: var(--muted);
-  min-width: 32px;
-  user-select: none;
+  border-left: 0.25rem solid transparent;
+
+  cursor: default;
+  transition: background 60ms, color 60ms;
+
+  &:hover {
+    color: var(--text);
+    background: rgba(91, 138, 240, 0.06);
+  }
+
+  &.current {
+    color: var(--yellow);
+    background: rgba(240, 196, 91, 0.08);
+    border-left-color: var(--yellow);
+  }
 }
 
-.log-row.match    { color: var(--green); background: rgba(61,214,140,.07); border-left-color: var(--green); }
-.log-row.mismatch { color: var(--red);   background: rgba(240,91,91,.07);  border-left-color: var(--red);   }
-.log-row.pending  { color: var(--muted); }
-.log-row.active   { background: rgba(240,196,91,.07); }
 
-/* Statusbar */
-#statusbar {
-  height: 32px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 16px;
-  border-top: 1px solid var(--border);
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.ok  { color: var(--green); }
-.err { color: var(--red);   }
-.sep { color: var(--border); }
+/* ─────────────────────────────────────────────────────────────────────────────
+  10. Buttons
+   ───────────────────────────────────────────────────────────────────────────── */
 
 button {
-  font-family: var(--mono);
-  font-size: 11px;
-  padding: 4px 12px;
+  padding: 0.25rem 0.75rem;
+
+  font-family: inherit;
+  font-size: 0.75rem;
+  white-space: nowrap;
+
   background: transparent;
   color: var(--muted);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 0.25rem;
+
   cursor: pointer;
+  transition: color 120ms, border-color 120ms;
+
+  &:hover    { color: var(--text);   border-color: var(--muted);  }
+  &.active   { color: var(--accent); border-color: var(--accent); }
+  &:disabled { opacity: 0.35; cursor: not-allowed; }
 }
 
-button:hover { color: var(--text); border-color: var(--text); }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+  11. Reset confirm dialog
+   ───────────────────────────────────────────────────────────────────────────── */
+
+#reset-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  &[hidden] { display: none; }
+
+  & #reset-dialog-box {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 15rem;
+    padding: 1.5rem 1.75rem;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+
+    & p {
+      font-size: 0.75rem;
+
+      color: var(--text);
+    }
+
+    & #reset-dialog-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+
+      & #btn-reset-confirm {
+        color: var(--red);
+        border-color: var(--red);
+
+        &:hover { background: rgba(240, 91, 91, 0.1); }
+      }
+    }
+  }
+}

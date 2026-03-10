@@ -1,11 +1,12 @@
 'use strict';
 
-import CONSTANTS from "./Constants.js";
+import CONSTANTS from "../utils/Constants.js";
 
 import ROM from "./ROM.js";
 import CPU from "./CPU.js";
 import PPU from "./PPU.js";
 // import APU from "./APU.js";
+import UI  from "../utils/UI.js";
 
 class NES {
     constructor() {
@@ -14,6 +15,7 @@ class NES {
         // this.APU = new APU(this);
         this.PPU = new PPU(this);
         this.CPU = new CPU(this);
+        this.UI  = new UI(this);
 
         // 2KB Internal RAM
         this.WRAM = new Uint8Array(0x800).fill(0x00);
@@ -25,6 +27,9 @@ class NES {
         this.PALETTE_RAM = new Uint8Array(0x20).fill(0x00);
 
         this.pauseExecution = true;
+
+        // When true, PPU draws the nametable and UI refreshes the debug panel
+        this.debugViewActive = false;
     }
 
     loadCartridge(romData) {
@@ -199,11 +204,6 @@ class NES {
 
             this.PALETTE_RAM[address] = byte;
         }
-    }
-
-    updateUI() {
-        const currentFPS = 1000 / (Date.now() - this.PPU.lastFrameTime);
-        document.getElementById('fps').textContent = 'FPS: ' + (currentFPS).toFixed(2);
     }
 }
 

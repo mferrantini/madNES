@@ -1,25 +1,24 @@
 import NES from './components/NES.js';
 
-let xhr = new XMLHttpRequest();
-xhr.open(
-    'GET',
-    // './roms/nestest.nes',
-    // './roms/donkey.nes',
-    './roms/balloon.nes',
-    // './roms/smb.nes',
-    true,
-);
+const ROM_URL =
+    // './roms/nestest.nes'
+    // './roms/donkey.nes'
+    './roms/balloon.nes'
+    // './roms/smb.nes'
+;
 
+let xhr = new XMLHttpRequest();
+xhr.open('GET', ROM_URL, true);
 xhr.responseType = 'arraybuffer';
 
 xhr.onload = () => {
-    // Load ROM data
-    let romData = new Uint8Array(xhr.response);
-    // Create NES instance
-    let nes = new NES();
-    // Load ROM data into NES
+    // Load the ROM data
+    const romData = new Uint8Array(xhr.response);
+    // Create the NES instance
+    const nes = new NES();
+    // Load cartridge
     nes.loadCartridge(romData);
-    // Run NES
+    // Power on the NES
     nes.powerOn();
 };
 

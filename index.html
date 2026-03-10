@@ -1,12 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
+        <meta charset="UTF-8">
         <title>madNES Emulator</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <canvas id="screen" height="240" width="256"></canvas>
+
+        <!-- Top bar: logo + GitHub only -->
+        <div id="topbar">
+            <div id="logo">
+                <span id="logo-name">madNES</span>
+                <span id="logo-slogan">just another JS emulator</span>
+            </div>
+            <span class="topbar-spacer"></span>
+            <a id="github-link" href="https://github.com/mferrantini/madNES" target="_blank" rel="noopener" title="View on GitHub">
+                <svg id="github-icon" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                mferrantini/madNES
+            </a>
+        </div>
+
+        <!-- Main layout: game area + sidebar -->
+        <div id="main">
+
+            <!-- Game canvas -->
+            <div id="game-area">
+                <canvas id="display" width="256" height="240"></canvas>
+            </div>
+
+            <!-- Debug sidebar (hidden by default) -->
+            <aside id="debug-sidebar">
+
+                <!-- Nametable -->
+                <div class="sidebar-section">
+                    <div class="sidebar-label">NAMETABLE</div>
+                    <div class="sidebar-canvas-wrap">
+                        <canvas id="debug-nametable" width="256" height="240"></canvas>
+                    </div>
+                </div>
+
+                <!-- CPU Registers -->
+                <div class="sidebar-section">
+                    <div class="sidebar-label">CPU REGISTERS</div>
+                    <div class="cpu-regs-grid">
+                        <span class="reg-name" title="Accumulator">A</span>
+                        <span class="reg-value" id="reg-a">--</span>
+                        <span class="reg-name" title="Index Register X">X</span>
+                        <span class="reg-value" id="reg-x">--</span>
+                        <span class="reg-name" title="Index Register Y">Y</span>
+                        <span class="reg-value" id="reg-y">--</span>
+                        <span class="reg-name" title="Stack Pointer">SP</span>
+                        <span class="reg-value" id="reg-sp">--</span>
+                        <span class="reg-name" title="Program Counter">PC</span>
+                        <span class="reg-value reg-value--wide" id="reg-pc">----</span>
+                        <span class="reg-name" title="Processor Status">P</span>
+                        <span class="reg-value" id="reg-p">--</span>
+                    </div>
+                </div>
+
+                <!-- CPU Status Register -->
+                <div class="sidebar-section">
+                    <div class="sidebar-label">STATUS FLAGS</div>
+                    <div id="cpu-status" class="cpu-status-row">
+                        <span class="status-bit" data-bit="7" title="Negative">N</span>
+                        <span class="status-bit" data-bit="6" title="Overflow">V</span>
+                        <span class="status-bit" data-bit="5" title="Unused">U</span>
+                        <span class="status-bit" data-bit="4" title="Break">B</span>
+                        <span class="status-bit" data-bit="3" title="Decimal">D</span>
+                        <span class="status-bit" data-bit="2" title="Interrupt Disable">I</span>
+                        <span class="status-bit" data-bit="1" title="Zero">Z</span>
+                        <span class="status-bit" data-bit="0" title="Carry">C</span>
+                    </div>
+                </div>
+
+                <!-- Execution controls -->
+                <div class="sidebar-section">
+                    <div class="sidebar-label">EXECUTION</div>
+                    <div class="step-controls">
+                        <button id="btn-play-sidebar" title="Play / Pause">&#9654;</button>
+                        <button id="btn-step" title="Execute one CPU step (pauses if running)">&#8677; Step</button>
+                        <button id="btn-frame" title="Advance one full frame (pauses if running)">&#9633; Frame</button>
+                    </div>
+                </div>
+
+                <!-- Disassembly -->
+                <div class="sidebar-section sidebar-section--grow">
+                    <div class="sidebar-label">DISASSEMBLY</div>
+                    <div id="disassembly" class="disasm-area"></div>
+                </div>
+
+            </aside>
+
+        </div>
+
+        <!-- Bottom bar: playback controls -->
+        <div id="bottombar">
+            <span id="fps">-- FPS</span>
+            <span class="sep">|</span>
+            <button id="btn-play">&#9654; Play</button>
+            <button id="btn-reset">&#8635; Reset</button>
+            <span class="topbar-spacer"></span>
+            <button id="btn-debug">&#9783; Debug</button>
+        </div>
+
+        <!-- Reset confirm dialog -->
+        <div id="reset-dialog" hidden>
+            <div id="reset-dialog-box">
+                <p>Resettare l'emulatore?</p>
+                <div id="reset-dialog-actions">
+                    <button id="btn-reset-confirm">Conferma</button>
+                    <button id="btn-reset-cancel">Annulla</button>
+                </div>
+            </div>
+        </div>
 
         <script src="script.js" type="module"></script>
     </body>

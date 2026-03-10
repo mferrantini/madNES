@@ -316,10 +316,13 @@ class PPU {
     }
 
     renderFrame() {
-        this.BUS.updateUI();
-
         this.VGA.renderFrame();
-        this.debugNametable(document.getElementById('debug-nametable'));
+        this.BUS.UI.updateUI();
+
+        if (this.BUS.debugViewActive) {
+            const el = document.getElementById('debug-nametable');
+            if (el) this.debugNametable(el);
+        }
 
         this.isFrameOdd = !this.isFrameOdd;
         this.isFrameReady = false;
