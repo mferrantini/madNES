@@ -37,6 +37,8 @@ class CPU {
         this.currentContext = {};
 
         this.pendingNMI = false;
+        this.pendingDMA = false;
+        this.pendingDMAAddress = new Register16Bit();
 
         // Total cycles from the start of the emulation
         this.totalCycles = 0;
@@ -332,14 +334,17 @@ class CPU {
 
     step() {
         if (this.currentInstruction.length === 0) {
-            // dbg.push(this.logState());
 
-            if (this.pendingNMI) {
-
+            // Check if there is a pending DMA request
+            if (this.pendingDMA) {
+                this.pendingDMA = false;
+                this.currentInstruction = [...this.DMA(this.dmaAddress, this.BUS)];
+            // Check if there is a pending NMI request
+            } else if (this.pendingNMI) {
                 this.pendingNMI = false;
                 this.currentInstruction = [...this.BRK(ADDRESSING.IMPLIED, true)];
             } else {
-                // Fetch opcode from memory
+                // If there is no pending request, fetch the opcode from memory
                 let opCode = this.BUS.cpuReadMemory(this.REG_PC.value);
                 
                 // Fetching the corresponding instruction
@@ -357,6 +362,11 @@ class CPU {
 
     setNmi() {
         this.pendingNMI = true;
+    }
+
+    setDMA(address) {
+        this.pendingDMA = true;
+        this.pendingDMAAddress.higherByte = address;
     }
     
     processAddressingMode(addressingMode, noRead = false) {
@@ -655,6 +665,28 @@ class CPU {
         }
     }
 
+    DMA() {
+        // The DMA transfer takes 512 cycles. It consists of 256 pairs of read and write operations
+        // to the OAMDATA register.
+        const DMASteps = new Array(512).fill(0).map((_, index) => {
+            if (index % 2 === 0) {
+                return context => {
+                    context.data = this.BUS.cpuReadMemory(this.pendingDMAAddress.value);
+                    this.pendingDMAAddress.increment();
+                }
+            } else {
+                return context => {
+                    this.BUS.cpuWriteMemory(0x2004, context.data);
+                }
+            }
+        });
+
+        // The DMA Setup takes 1 or 2 cycles depending if the DMA falls on an even or odd cycle.
+        const DMASetupSteps = new Array(this.totalCycles % 2 === 0 ? 1 : 2).fill(() => {});
+
+        return [...DMASetupSteps, ...DMASteps];
+    } 
+
     BRK(addressingMode, asNMI = false) {
         const instructionSteps = [
             _ => {
@@ -823,8 +855,6 @@ class CPU {
 
         return [...addressingSteps, ...instructionSteps];
     }
-
-    
 
     CLEAR_INSTRUCTION(addressingMode, instructionName) {
         let instructionSteps = [
@@ -1213,12 +1243,6 @@ class CPU {
 
         return regularAddressingSteps;
     }
-
-    
-
-
-    
- 
 
     NOP(addressingMode) {
         let instructionSteps = [

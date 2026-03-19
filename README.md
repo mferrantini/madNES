@@ -49,11 +49,14 @@ The `UI` class owns everything visual outside the game canvas: it binds the cont
 
 ## Roadmap 🗺️
 
-### Before release
+### Before first release
 
-- [ ] **PPU — sprite rendering** — complete OAM handling, sprite evaluation and per-pixel sprite/background priority
 - [ ] **APU** — implement the Audio Processing Unit for pulse, triangle, noise and DMC channels 🔊
 - [ ] **Controllers** — handle joypad input (keyboard mapping + optional gamepad API)
+
+### Accuracy improvements
+
+- [ ] **CPU Addressing** — Refine adressing modes for store instructions
 
 ### Nice to have ✨
 
@@ -61,6 +64,8 @@ The `UI` class owns everything visual outside the game canvas: it binds the cont
 - [ ] **UI improvements** — ROM picker, persistent settings, responsive layout for smaller screens
 - [ ] **Palette selection** — let the user swap between different NES colour palette presets 🎨
 - [ ] **Image filters** — optional CRT scanline, pixel-grid or NTSC composite effects
+- [ ] **Theme selection** — optional color theme for the emulator UI
+- [ ] **Debug features** — improving Nametable, Pattern table and OAM viewers. Tile grid for main display.
 
 ---
 

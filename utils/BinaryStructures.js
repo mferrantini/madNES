@@ -4,14 +4,9 @@
 // The BinaryStructure class is the base class for all binary structures.
 // It provides the basic functionality for working with binary data.
 class BinaryStructure {
-
-    // Private properties
-    #mask;
-    #data;
-
     constructor(type, data, mask) {
-        this.#mask = mask;
-        this.#data = new (type)(1);
+        this.mask = mask;
+        this.data = new (type)(1);
         this.data[0] = (data & mask) || 0;
     }
 
@@ -20,7 +15,7 @@ class BinaryStructure {
      * @returns {number} The value.
      */
     get value() {
-        return this.#data[0] & this.#mask;
+        return this.data[0] & this.mask;
     }
 
     /**
@@ -28,7 +23,7 @@ class BinaryStructure {
      * @param {number} value - The value to set.
      */
     set value(value) {
-        this.#data[0] = value & this.#mask;
+        this.data[0] = value & this.mask;
     }
 
     /**
@@ -242,6 +237,11 @@ class PPU15BitRegister extends Register16Bit {
     // ||| || +++++-------- coarse Y scroll
     // ||| ++-------------- nametable select
     // +++----------------- fine Y scroll
+
+    // Private properties
+    #mask;
+    #data;
+
     constructor(data) {
         super(data);
         this.mask = 0x7FFF;

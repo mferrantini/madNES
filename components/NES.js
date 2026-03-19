@@ -38,28 +38,6 @@ class NES {
     powerOn() {
         this.CPU.powerOn();
 
-        // When pressing F on keyboard, do a frame step
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'f') {
-                this.frame();
-            }
-
-            // When pressing S on keyboard, do a step
-            if (event.key === 's') {
-                this.step();
-            }
-
-            // When pressing R on keyboard, reset the NES
-            if (event.key === 'r') {
-                this.reset();
-            }
-
-            // When pressing SPACE on keyboard, pause or resume the execution
-            if (event.key === ' ') {
-                this.pauseExecution = !this.pauseExecution;
-            }
-        });
-
         const frameLoop = (time) => {
             if (!this.pauseExecution) {
                 this.frame();
@@ -127,6 +105,11 @@ class NES {
             return this.PPU.writeRegister(address, byte);
 
         } else if (0x4000 <= address && address <= 0x4017) {
+            // OAM DMA
+            if (address === 0x4014) {
+                this.CPU.setDMA(byte);
+            }
+
             // APU and I/0 registers
         } else if (0x4018 <= address && address <= 0x401F) {
             // APU and I/O functionality that is normally disabled.
