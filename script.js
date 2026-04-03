@@ -4,7 +4,10 @@ const ROM_URL =
     // './roms/nestest.nes'
     // './roms/donkey.nes'
     './roms/balloon.nes'
-    // './roms/smb.nes'
+    // './roms/smb_jap.nes'
+    // './roms/smb2.nes'
+    // './roms/sprite_ram.nes'
+    // './roms/megaman2.nes'
 ;
 
 let xhr = new XMLHttpRequest();

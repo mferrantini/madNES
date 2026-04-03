@@ -97,7 +97,7 @@ class ROM {
             !this.headerBytes[7].getBit(2) && this.headerBytes[7].getBit(3)) {
 
                 this.FORMAT = CONSTANTS.NES2_FORMAT;
-                throw new Error('NES2.0 Header is not yet supported!');
+                // throw new Error('NES2.0 Header is not yet supported!');
         }
 
         /**

@@ -15,7 +15,9 @@ const CONSTANTS = {
     'NES2_FORMAT': 'NES2.0',
 
     'PAL_SYSTEM': 'PAL',
-    'NTSC_SYSTEM': 'NTSC'
+    'NTSC_SYSTEM': 'NTSC',
+
+    'NTSC_FRAME_DURATION': 1000 / 60.0988,
 };
 
 const CPU_STATUS_FLAG = {

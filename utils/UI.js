@@ -372,8 +372,8 @@ export default class UI {
 
     /** Called by NES every emulated frame to refresh the FPS counter. */
     updateUI() {
-        const fps = 1000 / (Date.now() - this.#BUS.PPU.lastFrameTime);
-        if (this.#elFps) this.#elFps.textContent = `FPS: ${fps.toFixed(1)}`;
+        const fps = 1000 / this.#BUS.frameDuration;
+        if (this.#elFps) this.#elFps.textContent = `FPS: ${fps.toFixed(2)}`;
 
         this.#refreshDebug();
     }

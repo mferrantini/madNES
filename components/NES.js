@@ -2,11 +2,12 @@
 
 import CONSTANTS from "../utils/Constants.js";
 
+import UI  from "../utils/UI.js";
 import ROM from "./ROM.js";
 import CPU from "./CPU.js";
 import PPU from "./PPU.js";
-// import APU from "./APU.js";
-import UI  from "../utils/UI.js";
+import APU from "./APU.js";
+import Controller from "./Controller.js";
 
 class NES {
     constructor() {
@@ -16,10 +17,11 @@ class NES {
 
         this.ROM = null;
 
-        // this.APU = new APU(this);
+        this.UI  = new UI(this);
+        this.APU = new APU(this);
         this.PPU = new PPU(this);
         this.CPU = new CPU(this);
-        this.UI  = new UI(this);
+        this.CONTROLLER = new Controller();
 
         // 2KB Internal RAM
         this.WRAM = new Uint8Array(0x800).fill(0x00);
@@ -29,6 +31,10 @@ class NES {
 
         // 32-byte Palette RAM
         this.PALETTE_RAM = new Uint8Array(0x20).fill(0x00);
+
+        this.frameTime = 0;
+        this.frameDuration = 0;
+        this.frameTimeAccumulator = 0;
     }
 
     loadCartridge(romData) {
@@ -40,8 +46,17 @@ class NES {
 
         const frameLoop = (time) => {
             if (!this.pauseExecution) {
-                this.frame();
-            }
+                this.frameDuration = Math.min(time - this.frameTime, 50); // 50ms is the maximum frame duration
+
+                this.frameTime = time;
+                this.frameTimeAccumulator += this.frameDuration;
+    
+                while (this.frameTimeAccumulator >= CONSTANTS.NTSC_FRAME_DURATION) {
+                    this.frame();
+                    this.frameTimeAccumulator -= CONSTANTS.NTSC_FRAME_DURATION;
+                }
+            };
+
             window.requestAnimationFrame(frameLoop);
         };
 
@@ -63,6 +78,9 @@ class NES {
         this.PPU.step();
         this.PPU.step();
         this.PPU.step();
+
+        // 1 APU Step
+        this.APU.step();
     }
 
     // Memory management methods
@@ -80,9 +98,7 @@ class NES {
         } else if (0x4000 <= address && address <= 0x4017) {
             // APU and I/0 registers
             if (address === 0x4016) {
-                const b = window.button;
-                window.button = 0;
-                return b;
+                return this.CONTROLLER.getStatusBit();
             }
 
         } else if (0x4018 <= address && address <= 0x401F) {
@@ -105,6 +121,18 @@ class NES {
             return this.PPU.writeRegister(address, byte);
 
         } else if (0x4000 <= address && address <= 0x4017) {
+            // APU Registers
+            if (address >= 0x4000 && address <= 0x4013 || address === 0x4015) {
+                return this.APU.writeRegister(address, byte);
+            }
+
+            // Controller
+            if (address === 0x4016) {
+                if (byte === 0) {
+                    this.CONTROLLER.resetRegister();
+                }
+            }
+
             // OAM DMA
             if (address === 0x4014) {
                 this.CPU.setDMA(byte);
